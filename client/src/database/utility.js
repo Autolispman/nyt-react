@@ -2,7 +2,7 @@ const axios = require("axios");
 
 const artQuery = articleCriteria => {
   let p = new Promise(function(data, error) {
-    axios.post("api/searchForArticles", articleCriteria).then(result => {
+    axios.put("api/searchForArticles", articleCriteria).then(result => {
       //console.log(result.data);
       if (result) {
         data(result);

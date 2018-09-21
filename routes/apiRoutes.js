@@ -1,7 +1,7 @@
 const axios = require("axios");
 const router = require("express").Router();
 const db = require("../models");
-const key = require("../key")
+require('dotenv').config()
 
 // router.get("/recipes", (req, res) => {
 //   axios
@@ -12,16 +12,16 @@ const key = require("../key")
 
 function buildQuery(req) {
   // const queryURL = `https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=${key}&q=${topic}&begin_date=${startYear}0101&end_date=${endYear}1231`;
-  //const key = "";
+  
+  const key = process.env.key;
   const queryURL = `https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=${key}&q=${
     req.body.topic
   }&begin_date=${req.body.startYear}0101&end_date=${req.body.endYear}1231`;
-console.log(queryURL)
-console.log(typeof(key))
+
   return queryURL;
 }
 
-router.post("/searchForArticles", (req, res) => {
+router.put("/searchForArticles", (req, res) => {
   //console.log(req.body);
   const queryURL = buildQuery(req);
   //console.log(queryURL);
@@ -31,7 +31,7 @@ router.post("/searchForArticles", (req, res) => {
       let result = [];
       if (res1.data.response.docs[0]) {
         for (let i = 0; i < res1.data.response.docs.length; i++) {
-          if (i === 5000) {
+          if (i === 20) {
             break;
           } else {
             result.push(res1.data.response.docs[i]);
@@ -63,16 +63,18 @@ router.post("/saveArticle", (req, res) => {
       // Only Create Article if it has not been Created
       db.Article.create(req.body)
         .then(response => {
-          console.log(response + " Has been Created");
+          //console.log(response + " Has been Created");
           res.send("Sucessfully Saved!");
         })
         .catch(err => res.json(err));
+    }else {
+      res.send("Article is already saved")
     }
   });
 });
 
 router.post("/deleteArticle", (req, res) => {
-  console.log(req.body.id)
+  //console.log(req.body.id)
   db.Article.remove({ "_id": req.body.id })
     .then(function(response) {
       res.send("Sucessfully Removed!");
